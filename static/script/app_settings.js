@@ -1,13 +1,12 @@
 let confirmAction = null;
 
-document.addEventListener("click", async(e) => {
-  if (e.target.tagName == "BUTTON")
-    e.target.blur();
+document.addEventListener("click", async (e) => {
+  if (e.target.tagName == "BUTTON") e.target.blur();
 
   if (e.target.classList.contains("remove_redirect_uri_btn")) {
     if (redirect_uris.childElementCount <= 2) {
       alert(
-        "The application needs to have at least one redirect URI\nCan't redirect to nowhere y'know"
+        "The application needs to have at least one redirect URI\nCan't redirect to nowhere y'know",
       );
     } else {
       const uri = e.target.parentElement.getAttribute("data-uri");
@@ -69,22 +68,19 @@ document.addEventListener("click", async(e) => {
 
 async function _patch() {
   const token = document.cookie.match(/token=([A-Za-z0-9_-]{64})/)[1];
-  const req = await fetch(
-    `/api/apps/${appID}`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        redirect_uris: redirectURIs
-      }),
-      headers: {
-        "Authorization": token,
-        "Content-Type": "application/json"
-      }
-    }
-  );
+  const req = await fetch(`/api/apps/${appID}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      redirect_uris: redirectURIs,
+    }),
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+  });
 
   const res = await req.json();
-  if (res.status != "ok")
-    throw res.message;
+  if (res.status != "ok") throw res.message;
 }
 
 app_copy_id.addEventListener("click", (e) => {
@@ -96,7 +92,8 @@ app_copy_id.addEventListener("click", (e) => {
 });
 
 app_reset_secret.addEventListener("click", () => {
-  status_warn.textContent = "Are you sure you want to reset this application's secret?";
+  status_warn.textContent =
+    "Are you sure you want to reset this application's secret?";
   form.style.display = "none";
   confirm_form.style = null;
   confirm_btn.disabled = true;
@@ -106,7 +103,8 @@ app_reset_secret.addEventListener("click", () => {
 });
 
 delete_app.addEventListener("click", () => {
-  status_warn.innerHTML = "Are you sure you want to delete this application?<br>Your app will be lost forever (a long time!)";
+  status_warn.innerHTML =
+    "Are you sure you want to delete this application?<br>Your app will be lost forever (a long time!)";
   form.style.display = "none";
   confirm_form.style = null;
   confirm_btn.disabled = true;
@@ -133,13 +131,13 @@ confirm_btn.addEventListener("click", async () => {
       {
         method: confirmAction == "reset_secret" ? "PATCH" : "DELETE",
         body: JSON.stringify({
-          password: password_confirm.value
+          password: password_confirm.value,
         }),
         headers: {
           "Content-Type": "application/json",
-          "Authorization": token
-        }
-      }
+          Authorization: token,
+        },
+      },
     );
 
     const res = await req.json();
@@ -154,7 +152,7 @@ confirm_btn.addEventListener("click", async () => {
       [
         "The secret has been reset",
         `New secret: <span>${res.secret}</span>`,
-        "Make sure to save it somewhere!"
+        "Make sure to save it somewhere!",
       ].forEach((t) => {
         const e = document.createElement("p");
         e.innerHTML = t;

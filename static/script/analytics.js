@@ -2,17 +2,20 @@ window.addEventListener("load", async () => {
   const tokenCookie = document.cookie.match(/token=([A-Za-z0-9_-]{64})/);
   const token = tokenCookie ? tokenCookie[1] : undefined;
 
-  const req = await fetch(`/api/history/all/${username}?sort=newest&minimized=true`, {
-    headers: {
-      "Authorization": token
-    }
-  });
+  const req = await fetch(
+    `/api/history/all/${username}?sort=newest&minimized=true`,
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
 
   const data = await req.json();
   const entries = data.entries.map((x) => ({
     timestamp: parseInt(x[0]),
     pleasantness: x[1],
-    energy: x[2]
+    energy: x[2],
   }));
 
   if (req.status != 200 || data.status == "error") {
@@ -43,9 +46,9 @@ window.addEventListener("load", async () => {
           data: [],
           label: "Pleasantness",
           borderColor: "#7ba7e0",
-        }
-      ]
-    }
+        },
+      ],
+    },
   });
 
   function displayActivityGraph() {
@@ -66,9 +69,9 @@ window.addEventListener("load", async () => {
       const start = todayTs - i * day;
       const end = start + day;
 
-      const count = entries
-        .filter((x) => x.timestamp >= start && x.timestamp <= end)
-        .length;
+      const count = entries.filter(
+        (x) => x.timestamp >= start && x.timestamp <= end,
+      ).length;
 
       days[i] = count;
     }
@@ -83,19 +86,19 @@ window.addEventListener("load", async () => {
         e.classList.add(
           p >= 0.75
             ? "level-4"
-          : p >= 0.5
-            ? "level-3"
-          : p >= 0.25
-            ? "level-2"
-          : "level-1"
+            : p >= 0.5
+              ? "level-3"
+              : p >= 0.25
+                ? "level-2"
+                : "level-1",
         );
       }
 
       e.setAttribute(
         "data-hover-text",
-        `${days[i]} mood update${days[i] == 1 ? "" : "s"} on ${
-          moment(todayTs - i * day).format("ddd, MMM D")
-        }`
+        `${days[i]} mood update${days[i] == 1 ? "" : "s"} on ${moment(
+          todayTs - i * day,
+        ).format("ddd, MMM D")}`,
       );
     }
   }
@@ -112,7 +115,8 @@ window.addEventListener("load", async () => {
     });
 
     if (entries.length >= 150) {
-      status_warn.textContent = "The amount of data points has been limited for performance reasons";
+      status_warn.textContent =
+        "The amount of data points has been limited for performance reasons";
     } else {
       status_warn.textContent = "";
     }
@@ -128,10 +132,13 @@ window.addEventListener("load", async () => {
 
         const dot = document.createElement("span");
         dot.classList.add("dot");
-        dot.style.left = `${(point.pleasantness + 1) / 2 * 100}%`;
-        dot.style.top = `${(-point.energy + 1) / 2 * 100}%`;
+        dot.style.left = `${((point.pleasantness + 1) / 2) * 100}%`;
+        dot.style.top = `${((-point.energy + 1) / 2) * 100}%`;
         dot.style.opacity = decay;
-        dot.setAttribute("data-hover-text", `${moment(point.timestamp).calendar()}\nPleasantness: ${Math.floor(point.pleasantness * 100)}% | Energy: ${Math.floor(point.energy * 100)}%`);
+        dot.setAttribute(
+          "data-hover-text",
+          `${moment(point.timestamp).calendar()}\nPleasantness: ${Math.floor(point.pleasantness * 100)}% | Energy: ${Math.floor(point.energy * 100)}%`,
+        );
         dots.appendChild(dot);
       }
     } else if (htype.value == "heatmap") {
@@ -145,10 +152,13 @@ window.addEventListener("load", async () => {
 
       moods.forEach((x, i) => {
         const sq = document.getElementById(`mood_sq_${i}`);
-        sq.style.filter = `saturate(${x / highest * 4})`;
+        sq.style.filter = `saturate(${(x / highest) * 4})`;
         sq.style.opacity = Math.max(x / highest, 0.05);
-        sq.setAttribute("data-hover-text", `${x} (${(x / sum * 100).toFixed(2)}%)`);
-      })
+        sq.setAttribute(
+          "data-hover-text",
+          `${x} (${((x / sum) * 100).toFixed(2)}%)`,
+        );
+      });
     }
 
     const today = new Date();
@@ -157,12 +167,20 @@ window.addEventListener("load", async () => {
     today.setSeconds(0);
     today.setMilliseconds(0);
 
-    lineChart.data.datasets[0].data = entries.slice(0, 150).map((x) => x.energy).reverse();
-    lineChart.data.datasets[1].data = entries.slice(0, 150).map((x) => x.pleasantness).reverse();
-    lineChart.data.labels = entries.slice(0, 150)
-      .map((x) => moment(x.timestamp).format(
-        x.timestamp > today.getTime() ? "LT" : "L"
-      )).reverse();
+    lineChart.data.datasets[0].data = entries
+      .slice(0, 150)
+      .map((x) => x.energy)
+      .reverse();
+    lineChart.data.datasets[1].data = entries
+      .slice(0, 150)
+      .map((x) => x.pleasantness)
+      .reverse();
+    lineChart.data.labels = entries
+      .slice(0, 150)
+      .map((x) =>
+        moment(x.timestamp).format(x.timestamp > today.getTime() ? "LT" : "L"),
+      )
+      .reverse();
 
     lineChart.update();
   }
@@ -176,11 +194,7 @@ window.addEventListener("load", async () => {
       displayEntries(entries);
     } else {
       start_date.value = formatDate(new Date(Math.max(timestamp, oldestAt)));
-      displayEntries(
-        entries.filter(
-          (x) => x.timestamp > timestamp
-        )
-      );
+      displayEntries(entries.filter((x) => x.timestamp > timestamp));
     }
   }
 
@@ -193,16 +207,15 @@ window.addEventListener("load", async () => {
       return;
     } else status_warn.textContent = "";
 
-    const end = dist == 0
-      ? start_date.valueAsNumber + 24 * 3600 * 1000
-      : end_date.valueAsNumber;
+    const end =
+      dist == 0
+        ? start_date.valueAsNumber + 24 * 3600 * 1000
+        : end_date.valueAsNumber;
 
     displayEntries(
       entries.filter(
-        (x) =>
-          x.timestamp >= start_date.valueAsNumber
-          && x.timestamp <= end
-      )
+        (x) => x.timestamp >= start_date.valueAsNumber && x.timestamp <= end,
+      ),
     );
   }
 
@@ -214,9 +227,12 @@ window.addEventListener("load", async () => {
     }
   }
 
-  const formatDate = (date) => `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`
+  const formatDate = (date) =>
+    `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
 
-  start_date.min = end_date.min = formatDate(new Date(entries[entries.length - 1].timestamp));
+  start_date.min = end_date.min = formatDate(
+    new Date(entries[entries.length - 1].timestamp),
+  );
   start_date.max = end_date.max = formatDate(new Date(entries[0].timestamp));
 
   display();
@@ -256,14 +272,14 @@ window.addEventListener("load", async () => {
         today.setSeconds(0);
         today.setMilliseconds(0);
 
-        start_date.valueAsNumber = end_date.valueAsNumber = (
-          today - (displayCount - parseInt(e.target.id.split("-")[1]) - 1) * day
-        );
+        start_date.valueAsNumber = end_date.valueAsNumber =
+          today -
+          (displayCount - parseInt(e.target.id.split("-")[1]) - 1) * day;
 
         displayFilterCustomRange();
       }
     }
-  })
+  });
 
   document.addEventListener("mousemove", (e) => {
     if (e.target.hasAttribute("data-hover-text")) {
