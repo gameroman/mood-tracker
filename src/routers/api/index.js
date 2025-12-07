@@ -3,7 +3,7 @@ import express from "express";
 
 import { router as prometheusRouter } from "./routers/prometheus.js";
 import { router as historyRouter } from "./routers/history.js";
-import { router as oauth2Router } from "./routers/oauth2.js"
+import { router as oauth2Router } from "./routers/oauth2.js";
 import { router as moodRouter } from "./routers/mood.js";
 import { router as appsRouter } from "./routers/apps.js";
 import { router as meRouter } from "./routers/me.js";
@@ -20,7 +20,7 @@ router.use("/metrics", prometheusRouter);
 router.use((req, res) => {
   res.status(404).json({
     status: "error",
-    message: "Route not found"
+    message: "Route not found",
   });
 });
 
@@ -29,6 +29,6 @@ router.use((err, req, res, next) => {
   res.status(500).json({
     status: "error",
     message: "Internal server error",
-    comment: errorComments[Math.floor(Math.random() * errorComments.length)]
+    comment: errorComments[Math.floor(Math.random() * errorComments.length)],
   });
 });
