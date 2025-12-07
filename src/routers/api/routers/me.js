@@ -119,7 +119,7 @@ router.patch(
             .replace(/[^\u0000-\u00FF]/g, "?")
             .replace(/\n/g, "")
             .replace(/\s+/g, " ")
-            .replace(/[\/:]/g, "") // prevent links
+            .replace(/[/:]/g, "") // prevent links
             .trim() || DEFAULT_MOODS[i],
       );
     }

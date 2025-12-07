@@ -3,7 +3,7 @@ import { createId } from "../../../util.js";
 import { validateBody } from "../util.js";
 import { auth } from "../util.js";
 import express from "express";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 
