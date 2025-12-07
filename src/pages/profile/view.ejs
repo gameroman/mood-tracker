@@ -45,7 +45,6 @@
     <div class="gray">
       <p>Pleasantness: <span id="status_pleasantness"><%= Math.floor(mood.pleasantness * 100) %></span>%</p>
       <p>Energy: <span id="status_energy"><%= Math.floor(mood.energy * 100) %></span>%</p>
-      <%# <p>Vagueness: <span id="status_vagueness">1</span>%</p> %>
       <p>
         Last Update: <span id="status_last_update" data-timestamp="<%= mood.timestamp %>">
           <%= mood.timestamp ? new Date(parseInt(mood.timestamp)).toLocaleString() + " UTC+0" : "-" %>
