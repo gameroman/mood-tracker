@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Elysia } from "elysia";
 
 export const router = new Elysia({ prefix: "/mood" })
-  .get("/:user?", auth("mood.read"), async (req, res) => {
+  .get("/:user?", auth(), async (req, res) => {
     res.json({
       status: "ok",
       mood: await fetchMood(req.user),
@@ -14,7 +14,7 @@ export const router = new Elysia({ prefix: "/mood" })
   })
   .put(
     "/",
-    auth("mood.write"),
+    auth(),
     validateBody({
       pleasantness: z.number().min(-1).max(1),
       energy: z.number().min(-1).max(1),

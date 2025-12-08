@@ -8,7 +8,7 @@ import { Elysia } from "elysia";
 export const router = new Elysia({ prefix: "/history" })
   .get(
     "/all/:user?",
-    auth("history.read"),
+    auth(),
     validateQuery({
       sort: z.enum(["newest", "oldest"]).optional(),
       minimized: z.enum(["true", "false"]).optional(),
@@ -70,7 +70,7 @@ export const router = new Elysia({ prefix: "/history" })
   )
   .get(
     "/:user?",
-    auth("history.read"),
+    auth(),
     validateQuery({
       limit: z.coerce.number().int().min(0).max(100).optional(),
       page: z.coerce.number().int().optional(),

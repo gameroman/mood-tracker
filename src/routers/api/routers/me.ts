@@ -8,24 +8,20 @@ import { z } from "zod";
 import { Elysia } from "elysia";
 
 export const router = new Elysia({ prefix: "/me" })
-  .get("/", auth("user.read"), (req, res) => {
+  .get("/", auth(), (req, res) => {
     res.json({
       username: req.user.username,
       created_at: req.user.created_at,
-      total_mood_changes: req.oauth2?.scopes.includes("history.read")
-        ? req.user.stats_mood_sets
-        : null,
-      settings: !req.oauth2
-        ? {
-            custom_labels: req.user.custom_labels,
-            custom_colors: req.user.custom_colors,
-            custom_font_size: req.user.custom_font_size,
-            is_profile_private: req.user.is_profile_private,
-            is_history_private:
-              req.user.is_profile_private || req.user.is_history_private,
-            history_threshold_days: req.user.history_threshold_days,
-          }
-        : null,
+      total_mood_changes: null,
+      settings: {
+        custom_labels: req.user.custom_labels,
+        custom_colors: req.user.custom_colors,
+        custom_font_size: req.user.custom_font_size,
+        is_profile_private: req.user.is_profile_private,
+        is_history_private:
+          req.user.is_profile_private || req.user.is_history_private,
+        history_threshold_days: req.user.history_threshold_days,
+      },
     });
   })
   .patch(

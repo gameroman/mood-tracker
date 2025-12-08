@@ -2,36 +2,9 @@ import { fromZodError } from "zod-validation-error";
 import { fetch$ } from "~/lib/db";
 import { z } from "zod";
 
-type Scope = string & {};
-
-export function auth(scope?: Scope) {
+export function auth() {
   return async function (req, res, next) {
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer ")
-    ) {
-      const auth = await fetch$(
-        "select * from authorized_apps where access_token=$1",
-        [req.headers.authorization.split(" ")[1]],
-      );
-
-      if (!auth) {
-        return res.status(401).json({
-          status: "error",
-          message: "Unauthorized",
-        });
-      } else if (!auth.scopes.includes(scope)) {
-        return res.status(403).json({
-          status: "error",
-          message: "Forbidden",
-        });
-      }
-
-      req.oauth2 = auth;
-      req.user = await fetch$("select * from users where id=$1", [
-        auth.user_id,
-      ]);
-    } else if (req.headers.authorization) {
+    if (req.headers.authorization) {
       req.user = await fetch$("select * from users where token=$1", [
         req.headers.authorization,
       ]);

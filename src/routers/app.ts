@@ -1,9 +1,9 @@
+import { Elysia } from "elysia";
+
 import { DEFAULT_MOODS, DEFAULT_COLORS } from "~/lib/constants";
 import { fetch$ } from "~/lib/db";
 import { fetchMood } from "~/lib/util";
 import { getAuth } from "./auth";
-
-import { Elysia } from "elysia";
 
 export const router = new Elysia()
   .get("/", getAuth(), async (req, res) => {
