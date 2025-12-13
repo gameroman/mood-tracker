@@ -92,8 +92,7 @@ app_copy_id.addEventListener("click", (e) => {
 });
 
 app_reset_secret.addEventListener("click", () => {
-  status_warn.textContent =
-    "Are you sure you want to reset this application's secret?";
+  status_warn.textContent = "Are you sure you want to reset this application's secret?";
   form.style.display = "none";
   confirm_form.style = null;
   confirm_btn.disabled = true;
@@ -125,9 +124,7 @@ confirm_btn.addEventListener("click", async () => {
   try {
     const token = document.cookie.match(/token=([A-Za-z0-9_-]{64})/)[1];
     const req = await fetch(
-      confirmAction == "reset_secret"
-        ? `/api/apps/${appID}/secret`
-        : `/api/apps/${appID}`,
+      confirmAction == "reset_secret" ? `/api/apps/${appID}/secret` : `/api/apps/${appID}`,
       {
         method: confirmAction == "reset_secret" ? "PATCH" : "DELETE",
         body: JSON.stringify({

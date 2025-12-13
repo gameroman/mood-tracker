@@ -13,11 +13,7 @@ import { initTasks } from "~/lib/tasks";
 process.on("uncaughtException", (e) => console.error(e));
 process.on("unhandledRejection", (e) => console.error(e));
 
-const app = new Elysia()
-  .use(appRouter)
-  .use(apiRouter)
-  .use(authRouter)
-  .use(settingsRouter);
+const app = new Elysia().use(appRouter).use(apiRouter).use(authRouter).use(settingsRouter);
 
 app.listen(config.port, async () => {
   await initDatabase();

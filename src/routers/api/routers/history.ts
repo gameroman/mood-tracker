@@ -15,11 +15,7 @@ export const router = new Elysia({ prefix: "/history" })
     }),
     async (req, res) => {
       const sort =
-        req.query.sort == "newest"
-          ? "desc"
-          : req.query.sort == "oldest"
-            ? "asc"
-            : "desc";
+        req.query.sort == "newest" ? "desc" : req.query.sort == "oldest" ? "asc" : "desc";
 
       const history = await exec$(
         `
@@ -85,11 +81,7 @@ export const router = new Elysia({ prefix: "/history" })
       const before = parseInt(req.query.before) || Date.now();
       const after = parseInt(req.query.after) || 0;
       const sort =
-        req.query.sort == "newest"
-          ? "desc"
-          : req.query.sort == "oldest"
-            ? "asc"
-            : "desc";
+        req.query.sort == "newest" ? "desc" : req.query.sort == "oldest" ? "asc" : "desc";
 
       const pages = Math.floor(req.user.stats_mood_sets / limit);
 

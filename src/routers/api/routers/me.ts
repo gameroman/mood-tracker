@@ -18,8 +18,7 @@ export const router = new Elysia({ prefix: "/me" })
         custom_colors: req.user.custom_colors,
         custom_font_size: req.user.custom_font_size,
         is_profile_private: req.user.is_profile_private,
-        is_history_private:
-          req.user.is_profile_private || req.user.is_history_private,
+        is_history_private: req.user.is_profile_private || req.user.is_history_private,
         history_threshold_days: req.user.history_threshold_days,
       },
     });
@@ -38,27 +37,19 @@ export const router = new Elysia({ prefix: "/me" })
       confirm_password: z.string().min(1).optional(),
       is_profile_private: z.boolean().optional(),
       is_history_private: z.boolean().optional(),
-      custom_font_size: z
-        .enum(["biggest", "big", "normal", "small", "smallest"])
-        .optional(),
+      custom_font_size: z.enum(["biggest", "big", "normal", "small", "smallest"]).optional(),
       custom_colors: z
         .array(z.number().int().min(0).max(0xffffff))
         .length(DEFAULT_COLORS.length)
         .optional(),
-      custom_labels: z
-        .array(z.string().min(1).max(53))
-        .length(DEFAULT_MOODS.length)
-        .optional(),
+      custom_labels: z.array(z.string().min(1).max(53)).length(DEFAULT_MOODS.length).optional(),
       history_threshold_days: z.number().int().min(-1).max(365).optional(),
     }),
     async (req, res) => {
       if (
         (req.body.username || req.body.new_password) &&
         (!req.body.confirm_password ||
-          !(await bcrypt.compare(
-            req.body.confirm_password,
-            req.user.password_hash,
-          )))
+          !(await bcrypt.compare(req.body.confirm_password, req.user.password_hash)))
       ) {
         return res.status(401).json({
           status: "error",
@@ -67,11 +58,7 @@ export const router = new Elysia({ prefix: "/me" })
       }
 
       if (req.body.username) {
-        if (
-          await fetch$("select 1 from users where username=$1", [
-            req.body.username,
-          ])
-        ) {
+        if (await fetch$("select 1 from users where username=$1", [req.body.username])) {
           return res.status(409).json({
             status: "error",
             message: "Username taken",
@@ -95,8 +82,7 @@ export const router = new Elysia({ prefix: "/me" })
       if (typeof req.body.history_threshold_days == "number")
         req.user.history_threshold_days = req.body.history_threshold_days;
 
-      if (req.body.custom_colors)
-        req.user.custom_colors = req.body.custom_colors;
+      if (req.body.custom_colors) req.user.custom_colors = req.body.custom_colors;
 
       if (req.body.custom_font_size) {
         req.user.custom_font_size = {

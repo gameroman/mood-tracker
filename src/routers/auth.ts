@@ -9,9 +9,7 @@ import { Elysia } from "elysia";
 export function getAuth(required = false) {
   return async function (req, res, next) {
     if (req.cookies.token) {
-      req.user = await fetch$("select * from users where token=$1", [
-        req.cookies.token,
-      ]);
+      req.user = await fetch$("select * from users where token=$1", [req.cookies.token]);
     }
 
     if (required && !req.user) {
@@ -31,20 +29,12 @@ export const router = new Elysia({ prefix: "/auth" })
     res.clearCookie("token").redirect("/");
   })
   .post("/login", async (req, res) => {
-    if (
-      typeof req.body.username != "string" ||
-      typeof req.body.password != "string"
-    )
+    if (typeof req.body.username != "string" || typeof req.body.password != "string")
       return res.status(400).send("Bad Request");
 
-    const user = await fetch$("select * from users where username=$1", [
-      req.body.username,
-    ]);
+    const user = await fetch$("select * from users where username=$1", [req.body.username]);
 
-    if (
-      !user ||
-      !(await bcrypt.compare(req.body.password, user.password_hash))
-    ) {
+    if (!user || !(await bcrypt.compare(req.body.password, user.password_hash))) {
       return res.status(403).render("pages/auth/login", {
         error: "Invalid username or password",
       });
@@ -57,10 +47,7 @@ export const router = new Elysia({ prefix: "/auth" })
       .redirect("/");
   })
   .post("/register", async (req, res) => {
-    if (
-      typeof req.body.username != "string" ||
-      typeof req.body.password != "string"
-    ) {
+    if (typeof req.body.username != "string" || typeof req.body.password != "string") {
       return res.status(400).send("Bad Request");
     }
 
@@ -76,9 +63,7 @@ export const router = new Elysia({ prefix: "/auth" })
       });
     }
 
-    if (
-      await fetch$("select 1 from users where username=$1", [req.body.username])
-    ) {
+    if (await fetch$("select 1 from users where username=$1", [req.body.username])) {
       return res.status(409).render("pages/auth/register", {
         error: "Username taken",
       });
@@ -101,10 +86,7 @@ export const router = new Elysia({ prefix: "/auth" })
       .redirect("/");
   })
   .post("/changepass", async (req, res) => {
-    if (
-      typeof req.body.oldpass != "string" ||
-      typeof req.body.newpass != "string"
-    ) {
+    if (typeof req.body.oldpass != "string" || typeof req.body.newpass != "string") {
       return res.status(400).send("Bad Request");
     }
 
@@ -114,9 +96,7 @@ export const router = new Elysia({ prefix: "/auth" })
       });
     }
 
-    const user = await fetch$("select * from users where token=$1", [
-      req.cookies.token,
-    ]);
+    const user = await fetch$("select * from users where token=$1", [req.cookies.token]);
     if (!user) {
       return res.status(401).send("Unauthorized");
     }
@@ -124,10 +104,11 @@ export const router = new Elysia({ prefix: "/auth" })
     const hash = await bcrypt.hash(req.body.newpass, 10);
     const token = randomBytes(48).toString("base64url");
 
-    await exec$(
-      "update users set token=$1, password_hash=$2, changepass=false where id=$3",
-      [token, hash, user.id],
-    );
+    await exec$("update users set token=$1, password_hash=$2, changepass=false where id=$3", [
+      token,
+      hash,
+      user.id,
+    ]);
 
     return res
       .cookie("token", token, {

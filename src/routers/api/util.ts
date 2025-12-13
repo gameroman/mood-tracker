@@ -5,9 +5,7 @@ import { z } from "zod";
 export function auth() {
   return async function (req, res, next) {
     if (req.headers.authorization) {
-      req.user = await fetch$("select * from users where token=$1", [
-        req.headers.authorization,
-      ]);
+      req.user = await fetch$("select * from users where token=$1", [req.headers.authorization]);
     }
 
     if (req.params.user) {

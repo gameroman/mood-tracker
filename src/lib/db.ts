@@ -7,10 +7,7 @@ export const db = new Bun.SQL({
   database: config.database.database,
 });
 
-export async function exec$(
-  query: string,
-  values: unknown[] = [],
-): Promise<any[]> {
+export async function exec$(query: string, values: unknown[] = []): Promise<any[]> {
   return (await db.unsafe(query, values)).rows;
 }
 

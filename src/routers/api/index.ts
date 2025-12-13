@@ -1,4 +1,3 @@
-
 import { Elysia } from "elysia";
 
 import { router as metricsRouter } from "./routers/prometheus.js";

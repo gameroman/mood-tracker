@@ -8,10 +8,7 @@ export async function cleanMoodHistory() {
   const day = 24 * 3600 * 1000;
 
   for (const { id, days } of users) {
-    await exec$("delete from mood where user_id=$1 and timestamp<$2", [
-      id,
-      now - day * days,
-    ]);
+    await exec$("delete from mood where user_id=$1 and timestamp<$2", [id, now - day * days]);
   }
 }
 
