@@ -3,11 +3,11 @@ import { getAuth } from "./auth";
 
 import { Elysia } from "elysia";
 
-export const SETTING_CATEGORIES = {
+const SETTING_CATEGORIES = {
   account: "Account",
   customization: "Customization",
   privacy: "Privacy",
-};
+} as const;
 
 export const router = new Elysia({ prefix: "/settings" })
   .use(getAuth(true))
@@ -31,7 +31,5 @@ export const router = new Elysia({ prefix: "/settings" })
     // need to check for string because javascript moment (__proto__)
     if (typeof SETTING_CATEGORIES[category] != "string") return next();
 
-    res.render("pages/settings", {
-      category,
-    });
+    res.render("pages/settings", { category });
   });
