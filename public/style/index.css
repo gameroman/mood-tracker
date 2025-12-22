@@ -1,8 +1,8 @@
-@import url(/static/style/adaptation.css);
+@import url(/style/adaptation.css);
 
 @font-face {
   font-family: "VT323";
-  src: url(/static/font/VT323.ttf) format("truetype");
+  src: url(/font/VT323.ttf) format("truetype");
 }
 
 :root {

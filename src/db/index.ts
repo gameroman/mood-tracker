@@ -1,14 +1,22 @@
-import config from "../../config.json" assert { type: "json" };
+import config from "#config" assert { type: "json" };
 
-export const db = new Bun.SQL({
+import { drizzle } from "drizzle-orm/bun-sql";
+
+import * as schema from "./schema";
+
+const client = new Bun.SQL({
   adapter: "postgres",
   username: config.database.user,
   password: config.database.password,
   database: config.database.database,
 });
 
+export const db = drizzle({ client, schema });
+
+export type User = typeof schema.users.$inferSelect;
+
 export async function exec$(query: string, values: unknown[] = []): Promise<any[]> {
-  return (await db.unsafe(query, values)).rows;
+  return (await client.unsafe(query, values)).rows;
 }
 
 export async function fetch$(query: string, values: unknown[] = []) {
@@ -16,5 +24,5 @@ export async function fetch$(query: string, values: unknown[] = []) {
 }
 
 export async function initDatabase() {
-  await db.file("data/setup.psql");
+  await client.file("data/setup.psql");
 }

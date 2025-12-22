@@ -1,8 +1,10 @@
-import config from "../../config.json" assert { type: "json" };
+import config from "#config" assert { type: "json" };
 
-import { exec$, fetch$ } from "~/lib/db";
+import { exec$, fetch$, db } from "~/db";
 import { randomBytes } from "node:crypto";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
+import { eq } from "drizzle-orm";
+import { users as usersTable } from "~/db/schema";
 
 import { Elysia } from "elysia";
 import * as z from "zod";
@@ -11,8 +13,9 @@ export const authPlugin = new Elysia({ name: "auth" })
   .macro({
     user: {
       async resolve({ cookie }) {
-        if (!cookie.token?.value) return { user: null };
-        const user = await fetch$("select * from users where token=$1", [cookie.token.value]);
+        const token = cookie.token?.value;
+        if (typeof token !== "string") return { user: null };
+        const user = (await db.select().from(usersTable).where(eq(usersTable.token, token)))[0];
         return { user };
       },
     },
@@ -38,11 +41,11 @@ export const router = new Elysia({ prefix: "/auth" })
   })
   .post(
     "/login",
-    async ({ redirect, cookie: { token }, body }) => {
-      const user = await fetch$("select * from users where username=$1", [body.username]);
+    async ({ redirect, cookie: { token }, body: { username, password } }) => {
+      const user = (await db.select().from(usersTable).where(eq(usersTable.username, username)))[0];
 
-      if (!user || !(await bcrypt.compare(body.password, user.password_hash))) {
-        return res.status(403).render("pages/auth/login", {
+      if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+        return res.status(403).render("/auth/login", {
           error: "Invalid username or password",
         });
       }
@@ -53,67 +56,64 @@ export const router = new Elysia({ prefix: "/auth" })
     },
     { body: z.object({ username: z.string(), password: z.string() }) },
   )
-  .post("/register", async ({ redirect }) => {
-    if (typeof req.body.username != "string" || typeof req.body.password != "string") {
-      return res.status(400).send("Bad Request");
-    }
 
-    if (!req.body.username.match(/^[a-z0-9_-]{3,32}$/)) {
-      return res.status(400).render("pages/auth/register", {
-        error: "Username validation failed",
-      });
-    }
+  .post(
+    "/register",
+    async ({ redirect, cookie, body: { username, password } }) => {
+      if (!username.match(/^[a-z0-9_-]{3,32}$/)) {
+        return res.status(400).render("/auth/register", {
+          error: "Username validation failed",
+        });
+      }
 
-    if (config.blacklisted_usernames.includes(req.body.username)) {
-      return res.status(400).render("pages/auth/register", {
-        error: "You cannot use that username",
-      });
-    }
+      if (config.blacklisted_usernames.includes(username)) {
+        return res.status(400).render("/auth/register", {
+          error: "You cannot use that username",
+        });
+      }
 
-    if (await fetch$("select 1 from users where username=$1", [req.body.username])) {
-      return res.status(409).render("pages/auth/register", {
-        error: "Username taken",
-      });
-    }
+      if (await fetch$("select 1 from users where username=$1", [username])) {
+        return res.status(409).render("/auth/register", {
+          error: "Username taken",
+        });
+      }
 
-    const hash = await bcrypt.hash(req.body.password, 10);
-    const token = randomBytes(48).toString("base64url");
+      const hash = await bcrypt.hash(password, 10);
+      const token = randomBytes(48).toString("base64url");
 
-    await exec$("insert into users values (default, $1, $2, $3, $4)", [
-      req.body.username,
-      hash,
-      token,
-      Date.now(),
-    ]);
+      await exec$("insert into users values (default, $1, $2, $3, $4)", [
+        username,
+        hash,
+        token,
+        Date.now(),
+      ]);
 
-    res.cookie("token", token, { maxAge: 365 * 24 * 3600 * 1000 });
-    return redirect("/");
-  })
-  .post("/changepass", async ({ redirect }) => {
-    if (typeof req.body.oldpass != "string" || typeof req.body.newpass != "string") {
-      return res.status(400).send("Bad Request");
-    }
+      cookie.token?.set({ value: token, maxAge: 365 * 24 * 3600 * 1000 });
 
-    if (req.body.newpass != req.body.newpassconfirm) {
-      return res.render("pages/auth/changepass", {
-        error: "New password confirmation does not match",
-      });
-    }
+      return redirect("/");
+    },
+    { body: z.object({ username: z.string(), password: z.string() }) },
+  )
 
-    const user = await fetch$("select * from users where token=$1", [req.cookies.token]);
-    if (!user) {
-      return res.status(401).send("Unauthorized");
-    }
+  .post(
+    "/changepass",
+    async ({ redirect, cookie, body: { newpass } }) => {
+      const user = await fetch$("select * from users where token=$1", [cookie.token]);
+      if (!user) {
+        return res.status(401).send("Unauthorized");
+      }
 
-    const hash = await bcrypt.hash(req.body.newpass, 10);
-    const token = randomBytes(48).toString("base64url");
+      const hash = await bcrypt.hash(newpass, 10);
+      const token = randomBytes(48).toString("base64url");
 
-    await exec$("update users set token=$1, password_hash=$2, changepass=false where id=$3", [
-      token,
-      hash,
-      user.id,
-    ]);
+      await exec$("update users set token=$1, password_hash=$2, changepass=false where id=$3", [
+        token,
+        hash,
+        user.id,
+      ]);
 
-    res.cookie("token", token, { maxAge: 365 * 24 * 3600 * 1000 });
-    return redirect("/");
-  });
+      cookie.token?.set({ value: token, maxAge: 365 * 24 * 3600 * 1000 });
+      return redirect("/");
+    },
+    { body: z.object({ newpass: z.string() }) },
+  );

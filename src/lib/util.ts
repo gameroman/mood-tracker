@@ -1,5 +1,5 @@
 import { DEFAULT_MOODS } from "./constants";
-import { fetch$ } from "./db";
+import { fetch$, type User } from "~/db";
 
 export function moodInfo(pleasantness: number, energy: number, moods = DEFAULT_MOODS) {
   const moodRow =
@@ -31,7 +31,7 @@ export function moodInfo(pleasantness: number, energy: number, moods = DEFAULT_M
   return moods[moodRow * 6 + moodColumn];
 }
 
-export async function fetchMood(user) {
+export async function fetchMood(user: User) {
   const mood = await fetch$("select * from mood where user_id=$1 order by id desc limit 1", [
     user.id,
   ]);

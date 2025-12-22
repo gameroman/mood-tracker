@@ -1,7 +1,7 @@
-import { auth, validateBody } from "../util.js";
-import { exec$, fetch$ } from "~/lib/db";
+import { auth, validateBody } from "./util";
+import { exec$, fetch$ } from "~/db";
 import { fetchMood } from "~/lib/util";
-import { z } from "zod";
+import * as z from "zod";
 
 import { Elysia } from "elysia";
 

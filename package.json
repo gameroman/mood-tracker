@@ -2,6 +2,9 @@
   "name": "mood-tracker",
   "private": true,
   "type": "module",
+  "imports": {
+    "#config": "./config.json"
+  },
   "scripts": {
     "dev": "bunx --bun astro dev",
     "format": "bunx oxfmt --list-different || bunx oxfmt"

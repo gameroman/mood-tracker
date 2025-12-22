@@ -1,9 +1,9 @@
 import { DEFAULT_COLORS, DEFAULT_MOODS } from "~/lib/constants";
-import { auth, validateBody } from "../util.js";
-import { exec$, fetch$ } from "~/lib/db";
+import { auth, validateBody } from "./util";
+import { exec$, fetch$ } from "~/db";
 import { randomBytes } from "node:crypto";
 import bcrypt from "bcrypt";
-import { z } from "zod";
+import * as z from "zod";
 
 import { Elysia } from "elysia";
 

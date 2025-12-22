@@ -1,7 +1,7 @@
-import { auth, validateBody, validateQuery } from "../util";
-import { exec$ } from "~/lib/db";
+import { auth, validateBody, validateQuery } from "./util";
+import { exec$ } from "~/db";
 import bcrypt from "bcrypt";
-import { z } from "zod";
+import * as z from "zod";
 
 import { Elysia } from "elysia";
 

@@ -1,50 +1,68 @@
 import { Elysia } from "elysia";
 
 import { DEFAULT_MOODS, DEFAULT_COLORS } from "~/lib/constants";
-import { fetch$ } from "~/lib/db";
+import { db } from "~/db";
 import { fetchMood } from "~/lib/util";
-import { getAuth } from "./auth";
+import { authPlugin } from "./auth";
+import { eq } from "drizzle-orm";
+import { users as usersTable } from "~/db/schema";
+import * as z from "zod";
 
 export const router = new Elysia()
-  .get("/", getAuth(), async (req, res) => {
-    res.render("pages/index", {
-      user: req.user,
-    });
-  })
-  .get("/:username", getAuth(), async (req, res, next) => {
-    const user = await fetch$("select * from users where username=$1", [req.params.username]);
+  .use(authPlugin)
+  .get(
+    "/",
+    async ({ user }) => {
+      res.render("/index", { user });
+    },
+    { auth: true },
+  )
+  .get(
+    "/:username",
+    async ({ params, user }) => {
+      const userToRender = (
+        await db.select().from(usersTable).where(eq(usersTable.username, params.username))
+      )[0];
 
-    if (!user) return next();
-    if (user.is_profile_private && req.user?.id != user.id) return next();
+      if (!userToRender) return;
+      if (userToRender.is_profile_private && user?.id != userToRender.id) return;
 
-    res.render("pages/profile/view", {
-      auth: req.user,
-      user: user,
-      username: user.username,
-      mood: await fetchMood(user),
+      res.render("/profile/view", {
+        auth: user,
+        user: userToRender,
+        username: userToRender.username,
+        mood: await fetchMood(userToRender),
 
-      labels: user.custom_labels.length > 0 ? user.custom_labels : DEFAULT_MOODS,
-      colors:
-        user.custom_colors.length > 0
-          ? user.custom_colors.map((x) => `#${x.toString(16).padStart(6, "0")}`)
-          : DEFAULT_COLORS,
-      font_size: user.custom_font_size || 1.2,
-    });
-  })
-  .get("/:username/analytics", getAuth(), async (req, res, next) => {
-    const user = await fetch$("select * from users where username=$1", [req.params.username]);
+        labels: userToRender.custom_labels.length > 0 ? userToRender.custom_labels : DEFAULT_MOODS,
+        colors:
+          userToRender.custom_colors.length > 0
+            ? userToRender.custom_colors.map((x) => `#${x.toString(16).padStart(6, "0")}`)
+            : DEFAULT_COLORS,
+        font_size: userToRender.custom_font_size || 1.2,
+      });
+    },
+    { auth: true, params: z.object({ username: z.string() }) },
+  )
+  .get(
+    "/:username/analytics",
+    async ({ params, user }) => {
+      const userToRender = (
+        await db.select().from(usersTable).where(eq(usersTable.username, params.username))
+      )[0];
 
-    if (!user) return next();
-    if (user.is_profile_private && req.user?.id != user.id) return next();
+      if (!userToRender) return;
+      if (userToRender.is_profile_private && user?.id != userToRender.id) return;
 
-    res.render("pages/profile/analytics", {
-      username: user.username,
+      res.render("/profile/analytics", {
+        username: userToRender.username,
 
-      labels: user.custom_labels.length > 0 ? user.custom_labels : DEFAULT_MOODS,
-      colors:
-        user.custom_colors.length > 0
-          ? user.custom_colors.map((x) => `#${x.toString(16).padStart(6, "0")}`)
-          : DEFAULT_COLORS,
-      font_size: user.custom_font_size || 1.2,
-    });
-  });
+        labels: userToRender.custom_labels.length > 0 ? userToRender.custom_labels : DEFAULT_MOODS,
+        colors:
+          userToRender.custom_colors.length > 0
+            ? userToRender.custom_colors.map((x) => `#${x.toString(16).padStart(6, "0")}`)
+            : DEFAULT_COLORS,
+        font_size: userToRender.custom_font_size || 1.2,
+      });
+    },
+    { auth: true, params: z.object({ username: z.string() }) },
+  );

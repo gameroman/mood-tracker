@@ -1,6 +1,6 @@
 import { fromZodError } from "zod-validation-error";
-import { fetch$ } from "~/lib/db";
-import { z } from "zod";
+import { fetch$ } from "~/db";
+import * as z from "zod";
 
 export function auth() {
   return async function (req, res, next) {
