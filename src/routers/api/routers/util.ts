@@ -1,21 +1,38 @@
+import { eq, and, or } from "drizzle-orm";
 import * as z from "zod";
 import { fromZodError } from "zod-validation-error";
 
-import { fetch$ } from "~/db";
+import { db } from "~/db";
+import { users as usersTable } from "~/db/schema";
 
 export function auth() {
   return async function (req, res, next) {
     if (req.headers.authorization) {
-      req.user = await fetch$("select * from users where token=$1", [req.headers.authorization]);
+      req.user = (
+        await db.select().from(usersTable).where(eq(usersTable.token, req.headers.authorization))
+      )[0];
     }
 
     if (req.params.user) {
       if (!req.params.user.match(/^[a-z0-9_-]{3,32}$/)) return next();
 
-      req.user = await fetch$(
-        "select * from users where username=$1 and ((is_profile_private=false and is_history_private=false) or id=$2)",
-        [req.params.user, req.user?.id ?? -1],
-      );
+      req.user = (
+        await db
+          .select()
+          .from(usersTable)
+          .where(
+            and(
+              eq(usersTable.username, req.params.user),
+              or(
+                and(
+                  eq(usersTable.is_profile_private, false),
+                  eq(usersTable.is_history_private, false),
+                ),
+                eq(usersTable.id, req.user?.id),
+              ),
+            ),
+          )
+      )[0];
     }
 
     if (!req.user) {
