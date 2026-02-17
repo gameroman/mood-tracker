@@ -1,10 +1,11 @@
-import config from "#config" with { type: "json" };
+import { randomBytes } from "node:crypto";
+
 import * as bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 import { Elysia } from "elysia";
-import { randomBytes } from "node:crypto";
 import * as z from "zod";
 
+import config from "#config" with { type: "json" };
 import { exec$, fetch$, db } from "~/db";
 import { users as usersTable } from "~/db/schema";
 

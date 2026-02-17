@@ -4,7 +4,7 @@ import * as z from "zod";
 import { exec$, fetch$ } from "~/db";
 import { fetchMood } from "~/lib/util";
 
-import { auth, validateBody } from "./util";
+import { auth } from "./util";
 
 export const router = new Elysia({ prefix: "/mood" })
   .get("/:user?", auth(), async (req, res) => {
@@ -15,12 +15,7 @@ export const router = new Elysia({ prefix: "/mood" })
   })
   .put(
     "/",
-    auth(),
-    validateBody({
-      pleasantness: z.number().min(-1).max(1),
-      energy: z.number().min(-1).max(1),
-    }),
-    async (req, res) => {
+    async ({ body, status }) => {
       const lastMood = await fetch$(
         "select * from mood where user_id=$1 order by id desc limit 1",
         [req.user.id],
@@ -31,16 +26,16 @@ export const router = new Elysia({ prefix: "/mood" })
         (req.user.history_threshold_days === 0 || parseInt(lastMood.timestamp) + 25000 > Date.now())
       ) {
         await exec$("update mood set pleasantness=$1, energy=$2, timestamp=$3 where id=$4", [
-          req.body.pleasantness,
-          req.body.energy,
+          body.pleasantness,
+          body.energy,
           Date.now(),
           lastMood.id,
         ]);
       } else {
         await exec$("insert into mood values (default, $1, $2, $3, $4)", [
           Date.now(),
-          req.body.pleasantness,
-          req.body.energy,
+          body.pleasantness,
+          body.energy,
           req.user.id,
         ]);
 
@@ -49,20 +44,23 @@ export const router = new Elysia({ prefix: "/mood" })
         ]);
       }
 
-      res.status(200).json({
-        status: "ok",
-      });
+      status(200);
+
+      return { status: "ok" };
+    },
+    {
+      auth,
+      body: z.object({
+        pleasantness: z.number().min(-1).max(1),
+        energy: z.number().min(-1).max(1),
+      }),
     },
   )
   .delete(
     "/",
-    auth(),
-    validateBody({
-      timestamps: z.array(z.number().int().positive()),
-    }),
-    async (req, res) => {
+    async ({ body }) => {
       if (
-        !Array.isArray(req.body.timestamps) ||
+        !Array.isArray(body.timestamps) ||
         req.body.timestamps.find((x) => !Number.isInteger(x))
       ) {
         return res.status(400).json({
@@ -73,12 +71,13 @@ export const router = new Elysia({ prefix: "/mood" })
 
       const deleted = await exec$(
         "delete from mood where user_id=$1 and timestamp=any($2) returning *",
-        [req.user.id, req.body.timestamps],
+        [req.user.id, body.timestamps],
       );
 
-      res.json({
-        status: "ok",
-        deleted: deleted.length,
-      });
+      res.json({ status: "ok", deleted: deleted.length });
+    },
+    {
+      auth,
+      body: z.object({ timestamps: z.array(z.number().int().positive()) }),
     },
   );

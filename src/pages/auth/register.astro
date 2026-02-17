@@ -1,8 +1,10 @@
-<!DOCTYPE html>
+---
+import Head from "~/components/Head.astro";
+---
+
 <html lang="en">
 <head>
-  <% locals.title = "Register" %>
-  <%- include('../../partials/head') %>
+    <Head title="Register" />
 </head>
 <body>
   <main>
@@ -22,7 +24,7 @@
       <label for="password">Password</label>
       <input name="password" id="password" type="password" placeholder="Password" required>
 
-      <p id="status_error"><%= locals.error || "" %></p>
+      <!-- <p id="status_error"><%= locals.error || "" %></p> -->
 
       <input type="checkbox" id="confirm_privacy_policy" name="confirm_privacy_policy" required>
       <label for="confirm_privacy_policy">I have read and agree to the <a href="/privacy">Privacy Policy</a></label>
@@ -44,8 +46,8 @@
           ? "Username is too short!"
         : null;
 
-      if (err) status_error.textContent = err;
-      else status_error.textContent = "";
+      // if (err) status_error.textContent = err;
+      // else status_error.textContent = "";
     });
   </script>
 </body>

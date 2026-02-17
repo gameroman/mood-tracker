@@ -1,8 +1,10 @@
-<!DOCTYPE html>
+---
+import Head from "~/components/Head.astro";
+---
+
 <html lang="en">
 <head>
-  <% locals.title = "Change your password" %>
-  <%- include('../../partials/head') %>
+    <Head title="Change your password" />
 </head>
 <body>
   <main>
@@ -20,7 +22,7 @@
       <label for="newpassconfirm">Confirm new password</label>
       <input name="newpassconfirm" id="newpassconfirm" type="password" placeholder="New password" required>
 
-      <p id="status_error"><%- locals.error || "" %></p>
+      <!-- <p id="status_error"><%- locals.error || "" %></p> -->
 
       <input type="submit" value="Change">
     </form>

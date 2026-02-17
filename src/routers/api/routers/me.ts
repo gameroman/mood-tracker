@@ -1,6 +1,7 @@
+import { randomBytes } from "node:crypto";
+
 import bcrypt from "bcrypt";
 import { Elysia } from "elysia";
-import { randomBytes } from "node:crypto";
 import * as z from "zod";
 
 import { exec$, fetch$ } from "~/db";
@@ -149,8 +150,8 @@ export const router = new Elysia({ prefix: "/me" })
   )
   .delete(
     "/",
-    async (req, res) => {
-      if (!(await bcrypt.compare(req.body.password, req.user.password_hash))) {
+    async ({ body }) => {
+      if (!(await bcrypt.compare(body.password, req.user.password_hash))) {
         return res.status(401).json({
           status: "error",
           message: "Passwords do not match",
@@ -160,9 +161,7 @@ export const router = new Elysia({ prefix: "/me" })
       await exec$("delete from mood where user_id=$1", [req.user.id]);
       await exec$("delete from users where id=$1", [req.user.id]);
 
-      res.json({
-        status: "ok",
-      });
+      res.json({ status: "ok" });
     },
     {
       auth,

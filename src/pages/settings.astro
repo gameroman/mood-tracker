@@ -1,31 +1,32 @@
-<!DOCTYPE html>
+---
+import Head from "~/components/Head.astro";
+---
 <html lang="en">
 <head>
-  <% locals.title = "Settings" %>
-  <%- include('../partials/head') %>
+  <Head title="Settings" />
 </head>
 <body>
   <main>
     <div class="view_header">
       <div>
         <a href="/">home</a>
-        &squarf; <a href="/<%= user.username %>">profile</a>
-        &squarf; <b>settings</b>
+        <!-- &squarf; <a href="/<%= user.username %>">profile</a>
+        &squarf; <b>settings</b> -->
       </div>
     </div>
     <ul class="settings_nav">
-      <% for (const id in categories) { %>
+      <!-- <% for (const id in categories) { %>
         <% if (id == category) { %>
           <li class="active"><a href="/settings/<%= id %>"><%= categories[id] %></a></li>
         <% } else { %>
           <li><a href="/settings/<%= id %>"><%= categories[id] %></a></li>
         <% } %>
-      <% } %>
+      <% } %> -->
     </ul>
-    <div class="setting_container">
+    <!-- <div class="setting_container">
       <%- include(`./settings/${locals.file || category}`) %>
-    </div>
-    <style>
+    </div> -->
+    <!-- <style>
       :root {
         --background: <%= user.custom_colors[0] %>;
         --secondary-background: <%= user.custom_colors[1] %>;
@@ -45,7 +46,7 @@
         --color-12: <%= user.custom_colors[15] %>;
         --font-size: <%= user.custom_font_size %>rem;
       }
-    </style>
+    </style> -->
   </main>
 </body>
 </html>

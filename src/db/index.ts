@@ -1,5 +1,6 @@
-import config from "#config" with { type: "json" };
 import { drizzle } from "drizzle-orm/bun-sql";
+
+import config from "#config" with { type: "json" };
 
 import * as schema from "./schema";
 

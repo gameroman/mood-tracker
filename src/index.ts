@@ -1,6 +1,6 @@
-import config from "#config" with { type: "json" };
 import { Elysia } from "elysia";
 
+import config from "#config" with { type: "json" };
 import { initDatabase } from "~/db";
 import { initTasks } from "~/lib/tasks";
 

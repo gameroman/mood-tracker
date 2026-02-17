@@ -1,24 +1,27 @@
-<!DOCTYPE html>
+---
+import Head from "~/components/Head.astro";
+---
+
 <html lang="en">
 <head>
-  <%- include('../partials/head') %>
+  <Head title="Home" />
 </head>
 <body>
   <main>
     <div class="view_header">
       <div>
         <b>home</b>
-        <% if (user) { %>
+        <!-- <% if (user) { %>
           &squarf; <a href="/<%= user.username %>">profile</a>
           &squarf; <a href="/settings">settings</a>
         <% } else { %>
           &squarf; <a href="/auth/login">login</a>
           &squarf; <a href="/auth/register">register</a>
-        <% } %>
+        <% } %> -->
       </div>
     </div>
 
-    <% if (user) { %>
+    <!-- <% if (user) { %>
       <p>
         <% const feelings = ["good", "alright", "okay", "well", "happy"] %>
         <% const days = ["an awesome", "an amazing", "a good", "a happy", "a wonderful", "a great", "a nice"] %>
@@ -41,11 +44,13 @@
       <p>A simple mood tracker</p>
       <a style="font-size: 1.2em" class="gradient" href="/auth/register">Create your own profile!</a>
       <br>
-    <% } %>
+    <% } %> -->
 
     <br>
     <p class="gray noselect">
-      <a class="gray" href="https://github.com/zptr1/mood-tracker">GitHub</a> &squarf; <a class="gray" href="/privacy">Privacy Policy</a>
+      <a class="gray" href="https://github.com/zptr1/mood-tracker">GitHub</a>
+      &squarf;
+      <a class="gray" href="/privacy">Privacy Policy</a>
     </p>
   </main>
 </body>
